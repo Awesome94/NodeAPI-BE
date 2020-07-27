@@ -9,15 +9,13 @@ A Node REST API that performs some few but interesting tasks such as:
 - Show translated content of a given website/url.
 
 
-
-
 HTTP |End Point  | Result
 --- | --- | ----------
 POST | `/v1/register` | Creates a profile/account for new user.
 POST | `/v1/login/:username/:password` | Provides user with token to authorize navigation to other endpoints.
-POST | `/v1/translate` | Takes a URL and desired translation then Opens translated page and returns html.
+POST | `/v1/translate` | Takes a URL and desired translation then Opens translated page and returns html response.
 POST | `/v1/upload` | Uploads a file to database.
-GET | `/v1/download/:indetifier` | Streams file matching indentifier.
+GET | `/v1/download/:indetifier` | Streams file matching indentifier provided.
 
 
 ## Running Locally.

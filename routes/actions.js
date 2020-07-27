@@ -37,9 +37,10 @@ router.post('/parse', verify, async (req, res)=>{
 
 router.post('/translate', verify, async (req, res)=>{
     const url = req.body.url
+    const target = req.body.target || 'id'
     const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
-    let srcLang = 'en', targetLang = 'id';
+    let srcLang = 'en', targetLang = target;
 
     await page.goto(`https://translate.google.com/#view=home&op=translate&sl=${srcLang}&tl=${targetLang}`).catch(function () {
         console.log("Promise Rejected");
@@ -86,7 +87,7 @@ router.post('/upload', verify, uploadFile.single('upload'),async (req,res) =>{
     const newFile = new File({
         filename: req.file.originalname,
         file: req.file.buffer,
-        user_id: 1,
+        user_id: req.user,
         format: req.file.mimetype,
     });
     await newFile.save()
