@@ -3,6 +3,11 @@ const User = require('../model/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
+router.get('/', async (req, res)=>{
+    return res.status(200).send({"Welcome": "POST to /api/v1/register to get started"})
+})
+
 router.post('/register', async (req, res)=>{
     const userExists = await User.findOne({username: req.body.username})
 
