@@ -1,5 +1,5 @@
 # NodeAPI-BE
- Live api can be found here: 
+ Live api can be found here: https://translation-284519.uc.r.appspot.com/api/v1
 
 ## Overview
 A Node REST API that performs some few but interesting tasks such as:
