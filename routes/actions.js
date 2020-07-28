@@ -8,12 +8,16 @@ const cheerio = require('cheerio');
 const fetch = require('node-fetch');
 const puppeteer = require('puppeteer');
 const fs = require('fs-extra');
+const {TranslationServiceClient} = require('@google-cloud/translate');
+
 
 const uploadFile = multer({
     limits:{
         fileSize:10000000,
     },
 })
+
+const translationClient = new TranslationServiceClient();
 
 router.post('/parse', verify, async (req, res)=>{
     const resp = await fetch(req.body.url); 
@@ -36,44 +40,40 @@ router.post('/parse', verify, async (req, res)=>{
 })
 
 router.post('/translate', verify, async (req, res)=>{
+
     const url = req.body.url
     const target = req.body.target || 'id'
-    const browser = await puppeteer.launch({headless: true});
-    const page = await browser.newPage();
+    const resp = await fetch(req.body.url); 
+    const html = await resp.text()
+    const $ = cheerio.load(html);
+    // console.log("This is body", $('body').first().text())
     let srcLang = 'en', targetLang = target;
-
-    await page.goto(`https://translate.google.com/#view=home&op=translate&sl=${srcLang}&tl=${targetLang}`).catch(function () {
-        console.log("Promise Rejected");
-   });;
+    const projectId = "translation-284519"
+    const location = 'global'
+    const request = {
+        parent: `projects/${projectId}/locations/${location}`,
+        contents: [$('body').first().text()],
+        mimeType: 'text/html',
+        sourceLanguageCode: 'en',
+        targetLanguageCode: target,
+      };
     
-    await page.waitForSelector('#source');
-    await page.waitFor(1000);
-
-    let sourceString = url
-    await page.type('#source', sourceString);
-
-    await page.waitForSelector('.result-shield-container');
-    await page.waitFor(3000);
-
-    const translatedUrl = await page.evaluate(() => Array.from(document.querySelectorAll('a[href]'),
-        a => a.getAttribute('href')
-   ));
-  const redirectUrl =  translatedUrl[12]
-  const newBrowser = await puppeteer.launch({headless: false,  args: ['--start-maximized']});
-  const NewPage = await newBrowser.newPage();
-  
-  await NewPage.goto(redirectUrl);
-
-  await NewPage.on('response',  async ()=>{
-      const resp = await fetch(redirectUrl); 
-      const html = await resp.text()
-      fs.outputFile('Index.html',   html)
-    })
-    res.writeHead(200, {'Content-Type': 'text/html'});
+      try {
+        // Run request
+        const [response] = await translationClient.translateText(request);
+        // console.log("mama we made it this far", response)
+    
+        for (const translation of response.translations) {
+            $('body').first().text([translation.translatedText])
+        }
+      } catch (error) {
+        console.error("This is is", error);
+      }
+   
+    fs.outputFile('Index.html',   $.html())
     fs.readFile('./Index.html', null, function(error, data){
         if(error){
-            res.writeHead(404);
-            res.write('File not found')
+            res.status(404).send('File not found')
         }else{
             res.write(data);
         }
