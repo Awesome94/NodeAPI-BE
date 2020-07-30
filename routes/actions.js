@@ -62,7 +62,6 @@ router.post(`/translate/:url*`, verify, async(req, res) => {
         mimeType: 'text/html',
         targetLanguageCode,
     };
-
     const [{ languages }] = await translationClient.getSupportedLanguages(request);
     const languageCodes = languages.map((language) => language.languageCode);
 
@@ -78,11 +77,9 @@ router.post(`/translate/:url*`, verify, async(req, res) => {
                 languageCodes.join(', '),
         })
     }
-    const page = await fetch(url).catch(err => res.status(503).send({ error: "Make sure url is valid and try again" }));
-
+    return res.send("Sucess")
+    const page = await fetch(url)
     const html = await page.text()
-
-    const $ = cheerio.load(html);
     content.push(html)
 
     try {
@@ -98,7 +95,7 @@ router.post(`/translate/:url*`, verify, async(req, res) => {
 });
 
 
-router.post('/upload', verify, uploadFile.single('upload'), async(req, res) => {
+router.post('/upload', verify, uploadFile.single('file'), async(req, res) => {
     const fileName = req.file.originalname
     const newFile = new File({
         filename: req.file.originalname,
@@ -107,14 +104,14 @@ router.post('/upload', verify, uploadFile.single('upload'), async(req, res) => {
         format: req.file.mimetype,
     });
     await newFile.save()
-    res.status(200).send({ "Successfully with indentifier as": newFile.id })
+    res.status(200).send({ "Successfully with identifier as": newFile.id })
 }, (err, req, res, next) => res.status(404).send({ error: err }))
 
 
-router.get('/download/:indentifier', verify, async(req, res) => {
-    const indentifier = req.params.indentifier
+router.get('/download/:identifier', async(req, res) => {
+    const identifier = req.params.identifier
     try {
-        const fileObj = await File.findById(indentifier)
+        const fileObj = await File.findById(identifier)
         if (!fileObj || !fileObj.file)
             throw new Error()
         res.set('Content-Type', fileObj.format)

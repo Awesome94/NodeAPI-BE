@@ -29,7 +29,6 @@ router.post('/register', async (req, res)=>{
 });
 
 router.post('/login/:username/:password', async (req, res)=>{
-    // returns jwt token  as a Bearer token
     const user = await User.findOne({username: req.params.username})
     if(!user) return res.status(400).send('Username or Password is wrong');
     const validpass = await bcrypt.compare(req.params.password, user.password);
