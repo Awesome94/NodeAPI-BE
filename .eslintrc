@@ -1,0 +1,13 @@
+{
+  "extends": ["airbnb", "prettier"],
+  "parser": "babel-eslint",
+  "plugins": ["prettier"],
+  "env": {
+    "es6": true
+  },
+  "rules": {
+    "import/prefer-default-export": "off",
+    "padded-blocks": ["error", { "blocks": "never", "classes": "never", "switches": "never" }],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+  }
+}
