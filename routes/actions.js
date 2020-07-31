@@ -12,21 +12,6 @@ const uploadFile = multer()
 
 const translationClient = new TranslationServiceClient();
 
-const scrapeMetatage = (htmlData) => {
-    const $ = cheerio.load(htmlData);
-    const getMetatag = (name) => {
-        $(`meta[name=${name}]`).attr('content') ||
-            $('meta[name=description]').attr('content') ||
-            $(`meta[property="og:${name}"]`).attr('content') ||
-            $(`meta[property="twitter:${name}"]`).attr('content');
-    }
-    return {
-        title: $('title').first().text(),
-        favicon: $('link[rel="shortcut icon"]').attr('href') || "",
-        'large-image': getMetatag('image') || getMetatag('img'),
-        snippet: $('meta[name=description]').attr('content') || "",
-    }
-};
 
 router.post(`/parse/:url*`, verify, async(req, res) => {
     const url = req.params.url + req.params[0]
@@ -77,12 +62,14 @@ router.post(`/translate/:url*`, verify, async(req, res) => {
                 languageCodes.join(', '),
         })
     }
-    return res.send("Sucess")
-    const page = await fetch(url)
-    const html = await page.text()
-    content.push(html)
+
 
     try {
+        const page = await fetch(url)
+        const html = await page.text()
+
+        content.push(html)
+
         const [response] = await translationClient.translateText(request);
 
         for (const translation of response.translations) {
@@ -90,7 +77,7 @@ router.post(`/translate/:url*`, verify, async(req, res) => {
             return res.status(200).send(translation.translatedText);
         }
     } catch (error) {
-        res.status(503).send(error.details);
+        res.status(503).send(error.details || { error: "Failed, make sure url is absolute and valid, Try again" });
     }
 });
 

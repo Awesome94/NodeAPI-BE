@@ -13,8 +13,8 @@ HTTP |End Point  | Result
 --- | --- | ----------
 POST | `/v1/register` | Creates a profile/account for new user.
 POST | `/v1/login/:username/:password` | Provides user with token to authorize navigation to other endpoints.
-POST | `/v1/translate` | Takes a URL and desired translation then Opens translated page and returns html response.
-POST | `/v1/upload` | Uploads a file to database.
+POST | `/v1/translate` | Takes a URL and desired translation then and returns translated html response.
+POST | `/v1/upload` | Uploads a file to database and returns .
 POST | `/v1/parse/:url` | Scraps site for unfurling data.
 GET | `/v1/download/:identifier` | Streams file matching identifier provided.
 
